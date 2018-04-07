@@ -1,0 +1,45 @@
+guile-sparql
+============
+
+This package provides a `sparql-query` function to query an RDF store.
+Additionally, it provides an interface to write SPARQL queries using
+S-expressions.
+
+## Example usage
+
+Using default settings (triple store at http://localhost:8890 and CSV output
+format):
+
+```
+(use-modules (sparql driver)
+             (sparql lang))
+
+(sparql-query
+  (let ((rdf      (prefix "http://www.w3.org/1999/02/22-rdf-syntax-ns#"))
+        (rdfs     (prefix "http://www.w3.org/2000/01/rdf-schema#"))
+        (internal (prefix "http://localhost/")))
+    (select '(subject predicate object)
+            `((subject    predicate       object)
+              (subject    ,(rdf "type")   ,(internal "Sample")))
+            '((group by object)))))
+```
+
+Using non-default settings:
+
+```
+(use-modules (sparql driver)
+             (sparql lang))
+
+(sparql-query
+  (let ((rdf      (prefix "http://www.w3.org/1999/02/22-rdf-syntax-ns#"))
+        (rdfs     (prefix "http://www.w3.org/2000/01/rdf-schema#"))
+        (internal (prefix "http://localhost/")))
+    (select '(subject predicate object)
+            `((subject    predicate       object)
+              (subject    ,(rdf "type")   ,(internal "Sample")))
+            '((group by object))))
+  #:host "1.2.3.4"
+  #:port 8080
+  #:type "text/xml"
+  #:token "...")
+```
