@@ -1,0 +1,105 @@
+\input texinfo
+@c -*-texinfo-*-
+
+@c %**start of header
+@setfilename guile-sparql.info
+@documentencoding UTF-8
+@settitle Guile-SPARQL
+@c %**end of header
+
+@include version.texi
+
+@copying
+Copyright @copyright{} 2018 Roel Janssen@*
+
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License, Version 1.3 or
+any later version published by the Free Software Foundation; with no
+Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.  A
+copy of the license is included in the section entitled ``GNU Free
+Documentation License''.
+@end copying
+
+@dircategory The Algorithmic Language Scheme
+@direntry
+* Guile-SPARQL: (guile-sparql).  Create and execute SPARQL queries with Guile.
+@end direntry
+
+@titlepage
+@title Guile-SPARQL reference manual
+@subtitle Create and execute SPARQL queries with Guile.
+@author Roel Janssen
+
+@page
+@vskip 0pt plus 1filll
+Edition @value{EDITION} @*
+@value{UPDATED} @*
+
+@insertcopying
+@end titlepage
+
+@contents
+
+@c *********************************************************************
+@node Top
+@top Guile-SPARQL
+
+This document describes the Guile-SPARQL module for version @value{VERSION}.
+
+@menu
+* Introduction::                What is this all about?
+* Installation::                Installing the GWL.
+
+* GNU Free Documentation License::  The license of this manual.
+* Concept Index::               Concepts.
+* Programming Index::           Data types, functions, and variables.
+@end menu
+
+@c *********************************************************************
+@node Introduction
+@chapter Introduction
+
+This package provides a @code{sparql-query} function to query an RDF
+store.  Additionally, it provides an interface to write SPARQL queries
+using S-expressions.
+
+It consists of two modules: @code{(sparql driver)} and @code{(sparql lang)}.
+
+@c *********************************************************************
+@node Installation
+@chapter Installation
+
+Guile-SPARQL uses the GNU build system.  To install it from a release
+tarball just unpack it and run the usual commands:
+
+@example
+./configure
+make
+make install
+@end example
+
+If you want to build the sources from the source repository you need to
+bootstrap the build system first.  Run @code{autoreconf -vif} first and
+then perform the above steps.
+
+@c *********************************************************************
+@node GNU Free Documentation License
+@appendix GNU Free Documentation License
+
+@include fdl-1.3.texi
+
+@page
+
+@c *********************************************************************
+@node Concept Index
+@unnumbered Concept Index
+
+@printindex cp
+
+@node Programming Index
+@unnumbered Programming Index
+@syncodeindex tp fn
+@syncodeindex vr fn
+@printindex fn
+
+@bye
