@@ -45,7 +45,6 @@
   (define (variabilize item)
     (cond
      ((string? item)    item)
-     ((list?   item)    item)
      ((symbol? item)    (string-append "?" (symbol->string item)))
      (else              (format #f "?~a" item))))
 
@@ -53,16 +52,39 @@
     (if (list? keyword)
         (format #f "~{~a ~}" (map suffix-processor keyword))
         (match keyword
-          ('group 'GROUP)
-          ('by    'BY)
-          ('sort  'SORT)
-          (_      (variabilize keyword)))))
+          ('and         'AND)
+          ('ascending   'ASCENDING)
+          ('ask         'ASK)
+          ('by          'BY)
+          ('construct   'CONSTRUCT)
+          ('datatype    'DATATYPE)
+          ('descending  'DESCENDING)
+          ('describe    'DESCRIBE)
+          ('distinct    'DISTINCT)
+          ('filter      'FILTER)
+          ('from        'FROM)
+          ('graph       'GRAPH)
+          ('group       'GROUP)
+          ('isliteral   'ISLITERAL)
+          ('lang        'LANG)
+          ('langmatches 'langmatches)
+          ('limit       'LIMIT)
+          ('named       'NAMED)
+          ('offset      'OFFSET)
+          ('optional    'OPTIONAL)
+          ('or          'OR)
+          ('order       'ORDER)
+          ('regex       'REGEX)
+          ('sameterm    'SAMETERM)
+          ('str         'STR)
+          ('where       'WHERE)
+          (_           (variabilize keyword)))))
 
   (string-append
    (format #f "SELECT ~{~a ~}~%{~%~{~a~}}~%"
            ;; Translate the columns into SPARQL-like selectors.
-           (map (cut string-append "?" <>)
-                (map symbol->string columns))
+           (map variabilize columns)
+
            ;; Translate the triples into SPARQL-like patterns.
            (map (lambda (triple)
                   (format #f "  ~{~a ~}.~%" (map variabilize triple)))
