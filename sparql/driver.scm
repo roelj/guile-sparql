@@ -15,7 +15,6 @@
 
 (define-module (sparql driver)
   #:use-module (ice-9 receive)
-  #:use-module (sparql base64)
   #:use-module (sparql md5)
   #:use-module (srfi srfi-1)
   #:use-module (web client)
