@@ -72,7 +72,6 @@
                     ((string? digest-auth) "/sparql-auth")
                     (else "/sparql")))
          (post-url (format #f "http://~a:~a~a" host port post-uri)))
-    (format #t "URI: ~s (~a)~%" post-uri digest-auth)
     (http-post post-url
                #:body query
                #:streaming? #t
