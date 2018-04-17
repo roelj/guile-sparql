@@ -28,7 +28,7 @@ SUFFIXES = .scm .go
 .scm.go:
 	$(AM_V_GEN)$(top_builddir)/env $(GUILE_TOOLS) compile $(GUILE_WARNINGS) -o "$@" "$<"
 
-SOURCES = sparql/driver.scm sparql/lang.scm
+SOURCES = sparql/driver.scm sparql/lang.scm sparql/md5.scm
 
 info_TEXINFOS = doc/guile-sparql.texi
 EXTRA_DIST += env.in doc/fdl-1.3.texi doc/version.texi
