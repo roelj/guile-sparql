@@ -14,29 +14,19 @@ dnl You should have received a copy of the GNU General Public License
 dnl along with this program. If not, see <http://www.gnu.org/licenses/>.
 dnl -*- Autoconf -*-
 
-AC_INIT([guile-sparql], [0.0.2], [roel@gnu.org])
+AC_INIT([guile-sparql], [0.0.3], [roel@gnu.org])
 AC_CONFIG_AUX_DIR([build-aux])
 AM_INIT_AUTOMAKE([color-tests -Wall -Werror -Wno-portability foreign])
 AM_SILENT_RULES([yes])
 
-
-dnl Installation directories for .scm and .go files.
-dnl ---------------------------------------------------------------------------
-moddir="${prefix}/share/guile/site/$GUILE_EFFECTIVE_VERSION"
-godir="${libdir}/guile/$GUILE_EFFECTIVE_VERSION/site-ccache"
-AC_SUBST([moddir])
-AC_SUBST([godir])
-
-AC_CONFIG_FILES([Makefile])
-AC_CONFIG_FILES([env], [chmod +x env])
-
 GUILE_PKG([2.2 2.0])
 GUILE_PROGS
 
-if $GUILE_TOOLS | grep -q compile; then
-   true
-else
-   AC_MSG_ERROR([Guile >2.0 required.])
+if test "x$GUILD" = "x"; then
+   AC_MSG_ERROR(['guild' binary not found; please check your guile installation.])
 fi
+
+AC_CONFIG_FILES([Makefile])
+AC_CONFIG_FILES([env], [chmod +x env])
 
 AC_OUTPUT
