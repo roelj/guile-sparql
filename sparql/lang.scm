@@ -40,7 +40,7 @@
 ;; Below is the implementation of SPARQL's SELECT syntax.
 ;;
 
-(define* (select columns pattern #:optional (suffix #f))
+(define* (select columns pattern #:optional (suffix #f) #:key (graph #f))
 
   (define (variabilize item)
     (cond
@@ -81,9 +81,15 @@
           (_           (variabilize keyword)))))
 
   (string-append
-   (format #f "SELECT ~{~a ~}~%{~%~{~a~}}~%"
+   (format #f "SELECT ~{~a ~}~a~%{~%~{~a~}}~%"
+
            ;; Translate the columns into SPARQL-like selectors.
            (map variabilize columns)
+
+           ;; When the graph is known, add it to the query.
+           (if graph
+               (string-append "FROM <" graph "> ")
+               "")
 
            ;; Translate the triples into SPARQL-like patterns.
            (map (lambda (triple)
