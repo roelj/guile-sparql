@@ -31,7 +31,7 @@ SUFFIXES = .scm .go
 moddir=$(prefix)/share/guile/site/@GUILE_EFFECTIVE_VERSION@
 godir=$(libdir)/guile/@GUILE_EFFECTIVE_VERSION@/ccache
 
-SOURCES = sparql/driver.scm sparql/lang.scm sparql/md5.scm
+SOURCES = sparql/driver.scm sparql/lang.scm sparql/md5.scm sparql/util.scm
 
 info_TEXINFOS = doc/guile-sparql.texi
 EXTRA_DIST += env.in doc/fdl-1.3.texi doc/version.texi
