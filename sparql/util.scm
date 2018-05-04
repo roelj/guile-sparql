@@ -30,13 +30,10 @@
                            (string-split line #\,))))
           (format #t "~{~a~/~}~%" tokens)
           (when is-header?
-            (do ((index 1 (1+ index)))
-                ;; XXX: The length calculation over-estimates because it
-                ;; doesn't know the actual length of the tab.
-                ((> index (+ (* (1- (length tokens)) 8)
-                             (apply + (map string-length tokens)))))
-              (display "-"))
-            (newline))
+            (format #t "~{~a~/~}~%"
+                    (map (lambda (token)
+                           (make-string (string-length token) #\-))
+                         tokens)))
           (display-query-results port #f)))))
 
 (define-syntax-rule
