@@ -41,6 +41,7 @@
   (receive (header port)
       query
     (if (= (response-code header) 200)
-        (show-query-results port)
-        (format #t "Error: HTTP response code was ~a~%"
-                (response-code header)))))
+        (display-query-results port)
+        (format #t "Error (~a): ~a~%"
+                (response-code header)
+                (read-line port)))))
