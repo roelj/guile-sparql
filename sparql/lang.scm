@@ -20,7 +20,50 @@
   #:use-module (ice-9 format)
   #:use-module (srfi srfi-1)
   #:use-module (srfi srfi-26)
-  #:export (prefix select create))
+  #:export (prefix select insert-data create))
+
+;;
+;; UTILITIES
+;; ----------------------------------------------------------------------------
+;;
+
+(define (variabilize item)
+    (cond
+     ((string? item)    item)
+     ((symbol? item)    (string-append "?" (symbol->string item)))
+     (else              (format #f "?~a" item))))
+
+(define (keyword-processor keyword)
+  (if (list? keyword)
+      (format #f "~{~a ~}" (map keyword-processor keyword))
+      (match keyword
+        ('and         'AND)
+        ('ascending   'ASCENDING)
+        ('ask         'ASK)
+        ('by          'BY)
+        ('construct   'CONSTRUCT)
+        ('datatype    'DATATYPE)
+        ('descending  'DESCENDING)
+        ('describe    'DESCRIBE)
+        ('distinct    'DISTINCT)
+        ('filter      'FILTER)
+        ('from        'FROM)
+        ('graph       'GRAPH)
+        ('group       'GROUP)
+        ('isliteral   'ISLITERAL)
+        ('lang        'LANG)
+        ('langmatches 'langmatches)
+        ('limit       'LIMIT)
+        ('named       'NAMED)
+        ('offset      'OFFSET)
+        ('optional    'OPTIONAL)
+        ('or          'OR)
+        ('order       'ORDER)
+        ('regex       'REGEX)
+        ('sameterm    'SAMETERM)
+        ('str         'STR)
+        ('where       'WHERE)
+        (_           (variabilize keyword)))))
 
 ;;
 ;; PREFIX
@@ -42,44 +85,6 @@
 
 (define* (select columns pattern #:optional (suffix #f) #:key (graph #f))
 
-  (define (variabilize item)
-    (cond
-     ((string? item)    item)
-     ((symbol? item)    (string-append "?" (symbol->string item)))
-     (else              (format #f "?~a" item))))
-
-  (define (suffix-processor keyword)
-    (if (list? keyword)
-        (format #f "~{~a ~}" (map suffix-processor keyword))
-        (match keyword
-          ('and         'AND)
-          ('ascending   'ASCENDING)
-          ('ask         'ASK)
-          ('by          'BY)
-          ('construct   'CONSTRUCT)
-          ('datatype    'DATATYPE)
-          ('descending  'DESCENDING)
-          ('describe    'DESCRIBE)
-          ('distinct    'DISTINCT)
-          ('filter      'FILTER)
-          ('from        'FROM)
-          ('graph       'GRAPH)
-          ('group       'GROUP)
-          ('isliteral   'ISLITERAL)
-          ('lang        'LANG)
-          ('langmatches 'langmatches)
-          ('limit       'LIMIT)
-          ('named       'NAMED)
-          ('offset      'OFFSET)
-          ('optional    'OPTIONAL)
-          ('or          'OR)
-          ('order       'ORDER)
-          ('regex       'REGEX)
-          ('sameterm    'SAMETERM)
-          ('str         'STR)
-          ('where       'WHERE)
-          (_           (variabilize keyword)))))
-
   (string-append
    (format #f "SELECT ~{~a ~}~a~%{~%~{~a~}}~%"
 
@@ -98,7 +103,7 @@
 
    ;; Translate the suffixes into valid SPARQL.
    (if suffix
-       (format #f "~{~a~%~}" (map suffix-processor suffix))
+       (format #f "~{~a~%~}" (map keyword-processor suffix))
        "")))
 
 ;;
@@ -112,3 +117,13 @@
   (create pattern)
   (let ((p (quote pattern)))
     (format #f "CREATE ~a <~a>" (car p) (cadr p))))
+
+(define* (insert-data pattern #:key (graph #f))
+
+  (when (not graph)
+    (throw 'keyword-argument-error "Expected value for 'graph"))
+
+  (format #f "INSERT DATA {~%  GRAPH <~a> {~%~{~a~}  }~%}~%" graph
+          (map (lambda (triple)
+                 (format #f "    ~{~a ~}.~%" (map variabilize triple)))
+               pattern)))
