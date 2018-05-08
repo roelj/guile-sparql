@@ -20,7 +20,7 @@
   #:use-module (ice-9 format)
   #:use-module (srfi srfi-1)
   #:use-module (srfi srfi-26)
-  #:export (prefix select insert-data create))
+  #:export (prefix select insert-data delete-data create))
 
 ;;
 ;; UTILITIES
@@ -118,12 +118,27 @@
   (let ((p (quote pattern)))
     (format #f "CREATE ~a <~a>" (car p) (cadr p))))
 
-(define* (insert-data pattern #:key (graph #f))
+;;
+;; INSERT/DELETE DATA
+;; ----------------------------------------------------------------------------
+;;
+;; The following functions implement the INSERT DATA and DELETE DATA
+;; constructs.
+
+(define* (modify-data pattern action #:key (graph #f))
 
   (when (not graph)
-    (throw 'keyword-argument-error "Expected value for 'graph"))
+    (throw 'wrong-number-of-args "Expected value for 'graph"))
 
-  (format #f "INSERT DATA {~%  GRAPH <~a> {~%~{~a~}  }~%}~%" graph
+  (format #f "~a DATA {~%  GRAPH <~a> {~%~{~a~}  }~%}~%"
+          action
+          graph
           (map (lambda (triple)
                  (format #f "    ~{~a ~}.~%" (map variabilize triple)))
                pattern)))
+
+(define* (insert-data pattern #:key (graph #f))
+  (modify-data pattern 'INSERT #:graph graph))
+
+(define* (delete-data pattern #:key (graph #f))
+  (modify-data pattern 'DELETE #:graph graph))
