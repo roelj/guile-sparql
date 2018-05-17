@@ -19,7 +19,8 @@
   #:use-module (ice-9 format)
   #:use-module (web response)
   #:export (display-query-results
-            display-query-results-of))
+            display-query-results-of
+            query-results->list))
 
 (define* (display-query-results port #:optional (is-header? #t))
   "Writes CSV data from PORT to the standard output port."
@@ -42,6 +43,26 @@
       query
     (if (= (response-code header) 200)
         (display-query-results port)
+        (format #t "Error (~a): ~a~%"
+                (response-code header)
+                (read-line port)))))
+
+(define* (query-results-to-list port #:optional (output '()))
+  "Returns a list of data read from PORT."
+  (let* ((line   (read-line port)))
+    (if (eof-object? line)
+        (reverse output)
+        (query-results-to-list port
+         (cons (map (lambda (item) (string-trim-both item #\"))
+                    (string-split line #\,))
+               output)))))
+
+(define-syntax-rule
+  (query-results->list query)
+  (receive (header port)
+      query
+    (if (= (response-code header) 200)
+        (query-results-to-list port)
         (format #t "Error (~a): ~a~%"
                 (response-code header)
                 (read-line port)))))
