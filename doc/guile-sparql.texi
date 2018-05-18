@@ -133,6 +133,32 @@ Returns a SPARQL query to insert the triplets described in @var{pattern}.
 Returns a SPARQL query to remove the triplets described in @var{pattern}.
 @end deffn
 
+The results of the functions in this module can be captured using
+@code{(ice-9 receive)}.  Two values are returned; the HTTP header in the
+form of the @code{(web response)} module, and a port from which the query
+results can be read.  The following example displays how.
+
+@example
+(use-modules (ice-9 rdelim)
+             (ice-9 format)
+             (ice-9 receive))
+
+(define (display-query-results port)
+  (let ((line (read-line port)))
+    (if (eof-object? line)
+        #t
+        ;; The default output format is comma-separated values (CSV).
+        (let ((tokens (string-split line #\,)))
+          (format #t "~{~a~/~}~%" tokens)
+          (display-query-results port)))))
+
+(receive (header port)
+    (sparql-query "SELECT ?s ?p ?o { ?s ?p ?o }")
+  (if (= (response-code header) 200)
+    (display-query-results port)
+    (format #t "Error: The server responded in err.~%")))
+@end example
+
 @node Example of a @code{SELECT} query
 @subsection Example of a @code{SELECT} query
 
@@ -168,6 +194,42 @@ outside of @code{sparql-query}.
 @node Convenience functions
 @section Convenience functions
 
+The functions in @code{(sparql util)} make handling query results
+easier.
+
+@deffn {Scheme Procedure} display-query-results-of @var{query}
+Writes CSV data from @var{query} to the standard output port, where
+@var{query} is a call to @code{sparql-query}.
+@end deffn
+
+@deffn {Scheme Procedure} query-results->list @var{query}
+Returns the resulting table of @var{query} as a list, where
+@var{query} is a call to @code{sparql-query}.
+@end deffn
+
+To expand the example of the @code{(sparql lang)} module, the following
+two examples show how results can be displayed or stored as a list.
+
+To write the results to the standard output port:
+@example
+(display-query-results-of
+  (sparql-query
+    (let ((rdf (prefix "http://www.w3.org/1999/02/22-rdf-syntax-ns#"))
+          (lcl (prefix "http://localhost/")))
+      (select '(s p o) `((s p o)
+                         (s ,(rdf "type") ,(lcl "Example")))))))
+@end example
+
+To store the results in a list:
+@example
+(define results
+  (query-results->list
+    (sparql-query
+      (let ((rdf (prefix "http://www.w3.org/1999/02/22-rdf-syntax-ns#"))
+            (lcl (prefix "http://localhost/")))
+        (select '(s p o) `((s p o)
+                           (s ,(rdf "type") ,(lcl "Example"))))))))
+@end example
 
 
 @c *********************************************************************
