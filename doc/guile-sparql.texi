@@ -48,22 +48,34 @@ This document describes the Guile-SPARQL module for version @value{VERSION}.
 
 @menu
 * Introduction::                What is this all about?
-* Installation::                Installing the GWL.
-
+* Installation::                Installing guile-sparql.
+* API Reference::               Description of the interface.
 * GNU Free Documentation License::  The license of this manual.
 * Concept Index::               Concepts.
 * Programming Index::           Data types, functions, and variables.
+
+@detailmenu
+ --- The Detailed Node Listing ---
+
+API Reference
+
+* Querying remote endpoints::          Interacting with SPARQL endpoints.
+* SPARQL queries as S-expressions::    Scheme-ify SPARQL queries.
+* Convenience functions::              Quickly work with query results.
+
+@end detailmenu
 @end menu
 
 @c *********************************************************************
 @node Introduction
 @chapter Introduction
 
-This package provides a @code{sparql-query} function to query an RDF
-store.  Additionally, it provides an interface to write SPARQL queries
-using S-expressions.
+This package provides the functionality to query a SPARQL endpoint.
+Additionally, it provides an interface to write SPARQL queries using
+S-expressions.
 
-It consists of two modules: @code{(sparql driver)} and @code{(sparql lang)}.
+It consists of three modules: @code{(sparql driver)}, @code{(sparql lang)},
+and @code{(sparql util)}.
 
 @c *********************************************************************
 @node Installation
@@ -81,6 +93,82 @@ make install
 If you want to build the sources from the source repository you need to
 bootstrap the build system first.  Run @code{autoreconf -vif} first and
 then perform the above steps.
+
+@node API Reference
+@chapter API Reference
+
+@node Querying remote endpoints
+@section Querying remote endpoints
+
+The @code{(sparql driver)} module provides the ability to perform SPARQL
+queries over HTTP with the @code{sparql-query} function.
+
+@deffn {Scheme Procedure} sparql-query @var{query} [#:host @var{host} @
+  #:port @var{port} @
+  #:type @code{"text/csv"} @
+  #:token @code{#f} @
+  #:digest-auth @code{#f}]
+Send @var{query} to @var{host} on port @var{port}.  The default @var{host}
+is @code{localhost}, and the default port os @code{8890}.
+@end deffn
+
+@node SPARQL queries as S-expressions
+@section SPARQL queries as S-expressions
+
+The @code{(sparql lang)} module provides functions to write SPARQL queries
+using S-expressions.
+
+@deffn {Scheme Procedure} select @var{columns} @var{pattern} [#:graph #f @
+  #:suffix #f]
+Returns a SPARQL query as a string with the @var{columns} and @var{pattern}s.
+@end deffn
+
+@deffn {Scheme Procedure} insert-data @var{pattern} [#:graph #f @
+  #:suffix #f]
+Returns a SPARQL query to insert the triplets described in @var{pattern}.
+@end deffn
+
+@deffn {Scheme Procedure} delete-data @var{pattern} [#:graph #f @
+  #:suffix #f]
+Returns a SPARQL query to remove the triplets described in @var{pattern}.
+@end deffn
+
+@node Example of a @code{SELECT} query
+@subsection Example of a @code{SELECT} query
+
+The following query:
+@example
+(let ((rdf (prefix "http://www.w3.org/1999/02/22-rdf-syntax-ns#"))
+      (lcl (prefix "http://localhost/")))
+  (select '(s p o) `((s p o)
+                     (s ,(rdf "type") ,(lcl "Example")))))
+@end example
+
+Evaluates to:
+@example
+SELECT ?s ?p ?o
+{
+  ?s ?p ?o .
+  ?s <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://localhost/Example> .
+}
+@end example
+
+So, it can be combined with @code{sparql-query} this way:
+@example
+(sparql-query
+  (let ((rdf (prefix "http://www.w3.org/1999/02/22-rdf-syntax-ns#"))
+        (lcl (prefix "http://localhost/")))
+    (select '(s p o) `((s p o)
+                       (s ,(rdf "type") ,(lcl "Example"))))))
+@end example
+
+Note that the @code{let}-binding of the prefixes may also be on the
+outside of @code{sparql-query}.
+
+@node Convenience functions
+@section Convenience functions
+
+
 
 @c *********************************************************************
 @node GNU Free Documentation License
