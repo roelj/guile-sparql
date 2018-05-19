@@ -84,11 +84,11 @@ and @code{(sparql util)}.
 Guile-SPARQL uses the GNU build system.  To install it from a release
 tarball just unpack it and run the usual commands:
 
-@example
+@verbatim
 ./configure
 make
 make install
-@end example
+@end verbatim
 
 If you want to build the sources from the source repository you need to
 bootstrap the build system first.  Run @code{autoreconf -vif} first and
@@ -138,7 +138,7 @@ The results of the functions in this module can be captured using
 form of the @code{(web response)} module, and a port from which the query
 results can be read.  The following example displays how.
 
-@example
+@verbatim
 (use-modules (ice-9 rdelim)
              (ice-9 format)
              (ice-9 receive))
@@ -157,36 +157,36 @@ results can be read.  The following example displays how.
   (if (= (response-code header) 200)
     (display-query-results port)
     (format #t "Error: The server responded in err.~%")))
-@end example
+@end verbatim
 
 @node Example of a @code{SELECT} query
 @subsection Example of a @code{SELECT} query
 
 The following query:
-@example
+@verbatim
 (let ((rdf (prefix "http://www.w3.org/1999/02/22-rdf-syntax-ns#"))
       (lcl (prefix "http://localhost/")))
   (select '(s p o) `((s p o)
                      (s ,(rdf "type") ,(lcl "Example")))))
-@end example
+@end verbatim
 
 Evaluates to:
-@example
+@verbatim
 SELECT ?s ?p ?o
 {
   ?s ?p ?o .
   ?s <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://localhost/Example> .
 }
-@end example
+@end verbatim
 
 So, it can be combined with @code{sparql-query} this way:
-@example
+@verbatim
 (sparql-query
   (let ((rdf (prefix "http://www.w3.org/1999/02/22-rdf-syntax-ns#"))
         (lcl (prefix "http://localhost/")))
     (select '(s p o) `((s p o)
                        (s ,(rdf "type") ,(lcl "Example"))))))
-@end example
+@end verbatim
 
 Note that the @code{let}-binding of the prefixes may also be on the
 outside of @code{sparql-query}.
@@ -211,17 +211,17 @@ To expand the example of the @code{(sparql lang)} module, the following
 two examples show how results can be displayed or stored as a list.
 
 To write the results to the standard output port:
-@example
+@verbatim
 (display-query-results-of
   (sparql-query
     (let ((rdf (prefix "http://www.w3.org/1999/02/22-rdf-syntax-ns#"))
           (lcl (prefix "http://localhost/")))
       (select '(s p o) `((s p o)
                          (s ,(rdf "type") ,(lcl "Example")))))))
-@end example
+@end verbatim
 
 To store the results in a list:
-@example
+@verbatim
 (define results
   (query-results->list
     (sparql-query
@@ -229,7 +229,7 @@ To store the results in a list:
             (lcl (prefix "http://localhost/")))
         (select '(s p o) `((s p o)
                            (s ,(rdf "type") ,(lcl "Example"))))))))
-@end example
+@end verbatim
 
 
 @c *********************************************************************
