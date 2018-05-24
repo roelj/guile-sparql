@@ -5,6 +5,7 @@
 @setfilename guile-sparql.info
 @documentencoding UTF-8
 @settitle Guile-SPARQL
+@afourwide
 @c %**end of header
 
 @include version.texi
@@ -133,12 +134,13 @@ Returns a SPARQL query to insert the triplets described in @var{pattern}.
 Returns a SPARQL query to remove the triplets described in @var{pattern}.
 @end deffn
 
+@noindent
 The results of the functions in this module can be captured using
 @code{(ice-9 receive)}.  Two values are returned; the HTTP header in the
 form of the @code{(web response)} module, and a port from which the query
-results can be read.  The following example displays how.
+results can be read.  The following example displays what this looks like.
 
-@verbatim
+@lisp
 (use-modules (ice-9 rdelim)
              (ice-9 format)
              (ice-9 receive))
@@ -149,45 +151,44 @@ results can be read.  The following example displays how.
         #t
         ;; The default output format is comma-separated values (CSV).
         (let ((tokens (string-split line #\,)))
-          (format #t "~{~a~/~}~%" tokens)
+          (format #t "~@{~a~/~@}~%" tokens)
           (display-query-results port)))))
 
 (receive (header port)
-    (sparql-query "SELECT ?s ?p ?o { ?s ?p ?o }")
+    (sparql-query "SELECT ?s ?p ?o @{ ?s ?p ?o @}")
   (if (= (response-code header) 200)
     (display-query-results port)
     (format #t "Error: The server responded in err.~%")))
-@end verbatim
+@end lisp
 
 @node Example of a @code{SELECT} query
 @subsection Example of a @code{SELECT} query
 
 The following query:
-@verbatim
+@lisp
 (let ((rdf (prefix "http://www.w3.org/1999/02/22-rdf-syntax-ns#"))
-      (lcl (prefix "http://localhost/")))
+      (lcl (prefix "http://ex/")))
   (select '(s p o) `((s p o)
-                     (s ,(rdf "type") ,(lcl "Example")))))
-@end verbatim
-
-Evaluates to:
-@verbatim
-SELECT ?s ?p ?o
-{
+                     (s ,(rdf "type") ,(lcl "ample")))))
+@result{}
+"SELECT ?s ?p ?o
+@{
   ?s ?p ?o .
-  ?s <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://localhost/Example> .
-}
-@end verbatim
+  ?s <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://ex/ample> .
+@}"
+@end lisp
 
+@noindent
 So, it can be combined with @code{sparql-query} this way:
-@verbatim
+@lisp
 (sparql-query
-  (let ((rdf (prefix "http://www.w3.org/1999/02/22-rdf-syntax-ns#"))
+  (let ((owl (prefix "http://www.w3.org/2002/07/owl#"))
         (lcl (prefix "http://localhost/")))
     (select '(s p o) `((s p o)
                        (s ,(rdf "type") ,(lcl "Example"))))))
-@end verbatim
+@end lisp
 
+@noindent
 Note that the @code{let}-binding of the prefixes may also be on the
 outside of @code{sparql-query}.
 
@@ -207,21 +208,24 @@ Returns the resulting table of @var{query} as a list, where
 @var{query} is a call to @code{sparql-query}.
 @end deffn
 
+@noindent
 To expand the example of the @code{(sparql lang)} module, the following
 two examples show how results can be displayed or stored as a list.
 
+@noindent
 To write the results to the standard output port:
-@verbatim
+@lisp
 (display-query-results-of
   (sparql-query
     (let ((rdf (prefix "http://www.w3.org/1999/02/22-rdf-syntax-ns#"))
           (lcl (prefix "http://localhost/")))
       (select '(s p o) `((s p o)
                          (s ,(rdf "type") ,(lcl "Example")))))))
-@end verbatim
+@end lisp
 
+@noindent
 To store the results in a list:
-@verbatim
+@lisp
 (define results
   (query-results->list
     (sparql-query
@@ -229,8 +233,58 @@ To store the results in a list:
             (lcl (prefix "http://localhost/")))
         (select '(s p o) `((s p o)
                            (s ,(rdf "type") ,(lcl "Example"))))))))
-@end verbatim
+@end lisp
 
+@subsection Working with comma-separated values
+
+The naive way to parse comma-separated values is to do something
+equivalent to @code{(string-split line #\,)}, where @code{line} is a
+line of the comma-separated data.  This works fine until one of the
+values contains a comma, and is encapsulated in double quotes.
+
+@deffn {Scheme Procedure} split-line @var{line} [@var{delimiter}]
+Splits a string on a delimiter, like @code{string-split}, but ignores
+the delimiter when it occurs inside double quotes.
+@end deffn
+
+@noindent
+The following example also shows that @code{split-line} keeps
+the double quotes.  These can be trimmed using
+@code{string-trim-both}.
+
+@lisp
+(split-line "One,\"two, three\",four")
+@result{} ("One" "\"two, three\"" "four")
+@end lisp
+
+The default delimiter is a comma, but a different delimiter can be
+passed as a second argument.
+
+@lisp
+(split-line "One;two;three;four" #\;)
+@result{} ("One" "two" "three" "four")
+@end lisp
+
+@subsection Working with URIs
+
+@deffn {Scheme Procedure} uri-suffix @var{uri}
+Returns the suffix of @var{uri} so that the protocol, hostname, and
+parent directories are removed.
+@end deffn
+
+@lisp
+(uri-suffix "http://gnu.org/software/guile")
+@result{} "guile"
+@end lisp
+
+@deffn {Scheme Procedure} uri-base @var{uri}
+Returns the @var{uri} without the suffix returned by @code{uri-suffix}.
+@end deffn
+
+@lisp
+(uri-base "http://gnu.org/software/guile")
+@result{} "http://gnu.org/software/"
+@end lisp
 
 @c *********************************************************************
 @node GNU Free Documentation License

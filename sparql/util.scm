@@ -20,7 +20,10 @@
   #:use-module (web response)
   #:export (display-query-results
             display-query-results-of
-            query-results->list))
+            query-results->list
+            split-line
+            uri-suffix
+            uri-base))
 
 (define* (display-query-results port #:optional (is-header? #t))
   "Writes CSV data from PORT to the standard output port."
@@ -66,3 +69,32 @@
         (format #t "Error (~a): ~a~%"
                 (response-code header)
                 (read-line port)))))
+
+(define* (split-line line #:optional (delimiter #\,))
+  "Splits LINE where DELIMITER is the separator, properly handling quotes."
+
+  (define (iterator line length token-begin position in-quote tokens)
+    (cond
+     ((= position length)
+      (reverse (cons (string-drop line token-begin) tokens)))
+     ((eq? (string-ref line position) delimiter)
+      (if in-quote
+          (iterator line length token-begin (1+ position) in-quote tokens)
+          (iterator line length (1+ position) (1+ position) in-quote
+                    (cons (substring line token-begin position)
+                          tokens))))
+     ((eq? (string-ref line position) #\")
+      (iterator line length token-begin (1+ position) (not in-quote) tokens))
+     (else (iterator line length token-begin (1+ position) in-quote tokens))))
+
+  (iterator line (string-length line) 0 0 #f '()))
+
+(define (uri-suffix input)
+  (catch #t
+    (lambda ()
+      (string-trim-both (string-drop input (1+ (string-rindex input #\/))) #\"))
+    (lambda (key . args)
+      input)))
+
+(define (uri-base input)
+  (string-append (dirname input) "/"))
