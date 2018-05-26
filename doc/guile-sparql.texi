@@ -107,11 +107,92 @@ queries over HTTP with the @code{sparql-query} function.
 @deffn {Scheme Procedure} sparql-query @var{query} [#:host @var{host} @
   #:port @var{port} @
   #:type @code{"text/csv"} @
+  #:store-backend @code{'virtuoso} @
+  #:namespace @code{#f} @
   #:token @code{#f} @
   #:digest-auth @code{#f}]
 Send @var{query} to @var{host} on port @var{port}.  The default @var{host}
-is @code{localhost}, and the default port os @code{8890}.
+is @code{localhost}, and the default port is @code{8890}.
 @end deffn
+
+@subsection Triple-store specific implementations
+
+Known @emph{triple stores} use slightly incompatible ways to communicate a
+SPARQL query over HTTP.  Furthermore, authentication is implemented differently
+between @emph{triple store} implementations.
+
+The @code{(sparql driver)} module therefore implements three variants of
+querying over HTTP, supporting the implementations of @emph{Virtuoso},
+@emph{4store}, and @emph{BlazeGraph}.
+
+The default back-end is Virtuoso.
+
+@subsubsection Querying Virtuoso endpoints
+
+This module can query Virtuoso endpoints using three methods:
+@emph{unauthenticated}, @emph{OAuth token-based authentication}, and
+@emph{digest authentication}.
+
+If the endpoint needs no authentication, don't set @code{#:token} or
+@code{#:digest-auth}.  For token-based authentication, pass the token as a
+string using the @code{#:token} keyword.  To use digest authentication,
+pass the username and password, separated by a colon using the
+@code{#:digest-auth} keyword.
+
+The following examples show how to query a Virtuoso endpoint in three ways:
+
+@lisp
+;; No authentication required.
+(sparql-query "SELECT ?s ?p ?o @{ ?s ?p ?o @}")
+
+;; Token-based authentication.
+(sparql-query "SELECT ?s ?p ?o @{ ?s ?p ?o @}"
+              #:token "4bc17fb4ac225cad5ee52f7d42433446")
+
+;; Digest authentication.
+(sparql-query "SELECT ?s ?p ?o @{ ?s ?p ?o @}"
+              #:digest-auth "dba:dba")
+@end lisp
+
+@subsubsection Querying 4store endpoints
+
+The 4store triple store implements a token-based authentication mechanism.
+The following examples show how to query a 4store endpoint in two ways:
+
+@lisp
+;; No authentication required.
+(sparql-query "SELECT ?s ?p ?o @{ ?s ?p ?o @}"
+              #:store-backend '4store)
+
+;; Token-based authentication.
+(sparql-query "SELECT ?s ?p ?o @{ ?s ?p ?o @}"
+              #:store-backend '4store
+              #:token "4bc17fb4ac225cad5ee52f7d42433446")
+@end lisp
+
+@subsubsection Querying BlazeGraph endpoints
+
+This module does not implement authentication for BlazeGraph endpoints.
+
+BlazeGraph provides specific endpoint URLs for each @emph{namespace}.
+Therefore, querying a BlazeGraph endpoint requires setting the
+@code{#:namespace} property.  When @code{#:store-backend} is set to
+@code{'blazegraph}, the default namespace is set to @code{kb}.  Use the
+@code{#:namespace} keyword to query a different namespace.
+
+The following examples show how to query a BlazeGraph endpoint, using the
+default namespace, and using a non-default namespace.
+
+@lisp
+;; Perform the query on the "kb" namespace.
+(sparql-query "SELECT ?s ?p ?o @{ ?s ?p ?o @}"
+              #:store-backend 'blazegraph)
+
+;; Perform the query in the "example" namespace.
+(sparql-query "SELECT ?s ?p ?o @{ ?s ?p ?o @}"
+              #:store-backend 'blazegraph
+              #:namespace 'example)
+@end lisp
 
 @node SPARQL queries as S-expressions
 @section SPARQL queries as S-expressions
