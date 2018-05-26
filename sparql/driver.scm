@@ -43,18 +43,21 @@
                        (host "localhost")
                        (port 8890)
                        (type "text/csv")
+                       (namespace "kb")
                        (token #f)
                        (digest-auth #f))
   "Send QUERY to STORE-BACKEND, which can be either '4store or 'virtuoso."
   (cond
    ((eq? store-backend '4store)
     (sparql-query-4store
-     query #:host host #:port port #:type type #:token token
-           #:digest-auth digest-auth))
+     query #:host host #:port port #:type type #:token token))
    ((eq? store-backend 'virtuoso)
     (sparql-query-virtuoso
      query #:host host #:port port #:type type #:token token
            #:digest-auth digest-auth))
+   ((eq? store-backend 'blazegraph)
+    (sparql-query-blazegraph
+     query #:host host #:port port #:type type #:namespace namespace))
    (else #f)))
 
 ;;;
@@ -68,7 +71,7 @@
                                 (token #f)
                                 (digest-auth #f))
   (let* ((post-uri (cond
-                    ((string? token) "/sparql-oath")
+                    ((string? token) "/sparql-oauth")
                     ((string? digest-auth) "/sparql-auth")
                     (else "/sparql")))
          (post-url (format #f "http://~a:~a~a" host port post-uri)))
@@ -158,8 +161,7 @@
                               (host "localhost")
                               (port 8080)
                               (type "text/csv")
-                              (token #f)
-                              (digest-auth #f))
+                              (token #f))
   (let ((post-url (format #f "http://~a:~a/sparql/" host port)))
     (http-post post-url
                #:body (string-append "query=" (old-url-encoding
@@ -185,3 +187,26 @@
                 `((user-agent . "GNU Guile")
                   (content-type . (application/x-www-form-urlencoded))
                   (accept . ((,(string->symbol type)))))))))
+
+;;;
+;;; BlazeGraph-specific SPARQL-QUERY using a POST request.
+;;; ---------------------------------------------------------------------------
+
+(define* (sparql-query-blazegraph query
+                                  #:key
+                                  (host "localhost")
+                                  (port 9999)
+                                  (type "text/csv")
+                                  (token #f)
+                                  (namespace "kb")
+                                  (digest-auth #f))
+  (let ((post-url (format #f "http://~a:~a/blazegraph/namespace/~a/sparql"
+                          host port namespace)))
+    (http-post post-url
+               #:body (string-append "query=" (old-url-encoding
+                                               (uri-encode query)))
+               #:streaming? #t
+               #:headers
+               `((user-agent   . "GNU Guile")
+                 (content-type . (application/x-www-form-urlencoded))
+                 (accept       . ((,(string->symbol type))))))))
