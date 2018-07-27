@@ -40,6 +40,7 @@
 (define* (sparql-query query
                        #:key
                        (store-backend 'virtuoso)
+                       (uri #f)
                        (host "localhost")
                        (port 8890)
                        (type "text/csv")
@@ -50,14 +51,14 @@
   (cond
    ((eq? store-backend '4store)
     (sparql-query-4store
-     query #:host host #:port port #:type type #:token token))
+     query #:uri uri #:host host #:port port #:type type #:token token))
    ((eq? store-backend 'virtuoso)
     (sparql-query-virtuoso
-     query #:host host #:port port #:type type #:token token
+     query #:uri uri #:host host #:port port #:type type #:token token
            #:digest-auth digest-auth))
    ((eq? store-backend 'blazegraph)
     (sparql-query-blazegraph
-     query #:host host #:port port #:type type #:namespace namespace))
+     query #:uri uri #:host host #:port port #:type type #:namespace namespace))
    (else #f)))
 
 ;;;
@@ -65,6 +66,7 @@
 ;;; ---------------------------------------------------------------------------
 (define* (sparql-query-virtuoso query
                                 #:key
+                                (uri #f)
                                 (host "localhost")
                                 (port 8890)
                                 (type "text/csv")
@@ -74,7 +76,9 @@
                     ((string? token) "/sparql-oauth")
                     ((string? digest-auth) "/sparql-auth")
                     (else "/sparql")))
-         (post-url (format #f "http://~a:~a~a" host port post-uri)))
+         (post-url (if uri
+                       uri
+                       (format #f "http://~a:~a~a" host port post-uri))))
     (http-post post-url
                #:body query
                #:streaming? #t
@@ -158,11 +162,14 @@
 
 (define* (sparql-query-4store query
                               #:key
+                              (uri #f)
                               (host "localhost")
                               (port 8080)
                               (type "text/csv")
                               (token #f))
-  (let ((post-url (format #f "http://~a:~a/sparql/" host port)))
+  (let ((post-url (if uri
+                      uri
+                      (format #f "http://~a:~a/sparql/" host port))))
     (http-post post-url
                #:body (string-append "query=" (old-url-encoding
                                                (uri-encode query))
@@ -194,14 +201,17 @@
 
 (define* (sparql-query-blazegraph query
                                   #:key
+                                  (uri #f)
                                   (host "localhost")
                                   (port 9999)
                                   (type "text/csv")
                                   (token #f)
                                   (namespace "kb")
                                   (digest-auth #f))
-  (let ((post-url (format #f "http://~a:~a/blazegraph/namespace/~a/sparql"
-                          host port namespace)))
+  (let ((post-url (if uri
+                      uri
+                      (format #f "http://~a:~a/blazegraph/namespace/~a/sparql"
+                              host port namespace))))
     (http-post post-url
                #:body (string-append "query=" (old-url-encoding
                                                (uri-encode query)))
