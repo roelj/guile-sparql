@@ -1,4 +1,5 @@
 ;;; Copyright © 2018 Roel Janssen <roel@gnu.org>
+;;; Copyright © 2019 Giacomo Leidi <goodoldpaul@autistici.org>
 ;;;
 ;;; This program is free software; you can redistribute it and/or modify it
 ;;; under the terms of the GNU General Public License as published by
@@ -65,6 +66,19 @@
         ('where       'WHERE)
         (_           (variabilize keyword)))))
 
+(define (triples->pattern pattern)
+
+  ;; Translate the triples into SPARQL-like patterns.
+  (format #f "~%{~%~{~a~}}~%"
+          (map
+           (lambda (triple)
+             (let ((first (car triple)))
+               (match first
+                 ('minus (string-append "MINUS " (triples->pattern (cadr triple))))
+                 ('optional (string-append "OPTIONAL " (triples->pattern (cadr triple))))
+                 (_ (format #f "  ~{~a ~}.~%" (map variabilize triple))))))
+           pattern)))
+
 ;;
 ;; PREFIX
 ;; ----------------------------------------------------------------------------
@@ -77,34 +91,51 @@
   (lambda (suffix) (string-append "<" uri suffix ">")))
 
 ;;
+;; WHERE
+;; ----------------------------------------------------------------------------
+;;
+;; Below is the implementation of SPARQL's WHERE clause.
+;;
+
+(define* (where pattern #:optional (suffix #f) #:key (graph #f) (named #f))
+
+  (format #f "~aWHERE ~a~a"
+
+          ;; When the graph is known, add it to the query.
+          (if graph
+              (string-append "FROM "
+                             (if named "NAMED " "")
+                             "<" graph "> ")
+              "")
+
+          (triples->pattern pattern)
+
+          ;; Translate the suffixes into valid SPARQL.
+          (if suffix
+              (format #f "~{~a~%~}" (map keyword-processor suffix))
+              "")))
+
+;;
 ;; SELECT
 ;; ----------------------------------------------------------------------------
 ;;
 ;; Below is the implementation of SPARQL's SELECT syntax.
 ;;
 
-(define* (select columns pattern #:optional (suffix #f) #:key (graph #f))
+(define* (select columns pattern #:optional (suffix #f) #:key (distinct #f) (graph #f) (named #f))
 
   (string-append
-   (format #f "SELECT ~{~a ~}~a~%{~%~{~a~}}~%"
+   "SELECT "
 
+   (if distinct
+       "DISTINCT "
+       "")
+
+   (format #f "~{~a ~}~%"
            ;; Translate the columns into SPARQL-like selectors.
-           (map variabilize columns)
+           (map variabilize columns))
 
-           ;; When the graph is known, add it to the query.
-           (if graph
-               (string-append "FROM <" graph "> ")
-               "")
-
-           ;; Translate the triples into SPARQL-like patterns.
-           (map (lambda (triple)
-                  (format #f "  ~{~a ~}.~%" (map variabilize triple)))
-                pattern))
-
-   ;; Translate the suffixes into valid SPARQL.
-   (if suffix
-       (format #f "~{~a~%~}" (map keyword-processor suffix))
-       "")))
+   (where pattern suffix #:graph graph #:named named)))
 
 ;;
 ;; CREATE
