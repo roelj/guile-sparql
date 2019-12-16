@@ -156,6 +156,27 @@
    (where pattern suffix #:graph graph #:named named)))
 
 ;;
+;; ASK
+;; ----------------------------------------------------------------------------
+;;
+;; Below is the implementation of SPARQL's ASK syntax.
+;;
+
+(define* (ask pattern #:optional (suffix #f) (graph #f) (named #f))
+
+  (string-append
+   "ASK "
+
+   ;; When the graph is known, add it to the query.
+   (if graph
+       (string-append "FROM "
+                      (if named "NAMED " "")
+                      "<" graph "> ")
+       "")
+
+   (triples->pattern pattern)))
+
+;;
 ;; CREATE
 ;; ----------------------------------------------------------------------------
 ;;
