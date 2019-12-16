@@ -138,6 +138,24 @@
    (where pattern suffix #:graph graph #:named named)))
 
 ;;
+;; CONSTRUCT
+;; ----------------------------------------------------------------------------
+;;
+;; Below is the implementation of SPARQL's CONSTRUCT syntax.
+;;
+
+(define* (construct template pattern #:optional (suffix #f) (graph #f) (named #f))
+
+  (string-append
+   "CONSTRUCT "
+
+   (if (> (length template) 0)
+       (triples->pattern template)
+       "")
+
+   (where pattern suffix #:graph graph #:named named)))
+
+;;
 ;; CREATE
 ;; ----------------------------------------------------------------------------
 ;;
