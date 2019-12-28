@@ -12,6 +12,7 @@
 
 @copying
 Copyright @copyright{} 2018 Roel Janssen@*
+Copyright @copyright{} 2019 Giacomo Leidi@*
 
 Permission is granted to copy, distribute and/or modify this document
 under the terms of the GNU Free Documentation License, Version 1.3 or
@@ -201,8 +202,13 @@ The @code{(sparql lang)} module provides functions to write SPARQL queries
 using S-expressions.
 
 @deffn {Scheme Procedure} select @var{columns} @var{pattern} [#:graph #f @
-  #:suffix #f]
+  #:suffix #f @ #:named #f @ #:distinct #f]
 Returns a SPARQL query as a string with the @var{columns} and @var{pattern}s.
+@end deffn
+
+@deffn {Scheme Procedure} construct @var{template} @var{pattern} [#:graph #f @
+  #:suffix #f @ #:named #f]
+Returns a SPARQL query as a string with the @var{template} and @var{pattern}s.
 @end deffn
 
 @deffn {Scheme Procedure} insert-data @var{pattern} [#:graph #f @
@@ -272,6 +278,28 @@ So, it can be combined with @code{sparql-query} this way:
 @noindent
 Note that the @code{let}-binding of the prefixes may also be on the
 outside of @code{sparql-query}.
+
+@node Example of a @code{CONSTRUCT} query
+@subsection Example of a @code{CONSTRUCT} query
+
+The following query:
+@lisp
+(let ((ex (prefix "http://example.org/"))
+      (rdf (prefix "http://www.w3.org/1999/02/22-rdf-syntax-ns#")))
+  (construct `((s ,(rdf "type") o))
+             `((s ,(ex "type") o))
+             `((limit "20"))))
+@result{}
+"CONSTRUCT
+@{
+  ?s <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> ?o .
+@}
+WHERE
+@{
+  ?s <http://example.org/type> ?o .
+@}
+LIMIT 20"
+@end lisp
 
 @node Convenience functions
 @section Convenience functions
