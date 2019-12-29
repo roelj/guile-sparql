@@ -274,7 +274,7 @@ The following query:
 So, it can be combined with @code{sparql-query} this way:
 @lisp
 (sparql-query
-  (let ((owl (prefix "http://www.w3.org/2002/07/owl#"))
+  (let ((rdf (prefix "http://www.w3.org/1999/02/22-rdf-syntax-ns#"))
         (lcl (prefix "http://localhost/")))
     (select '(s p o) `((s p o)
                        (s ,(rdf "type") ,(lcl "Example"))))))
