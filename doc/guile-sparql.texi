@@ -211,6 +211,11 @@ Returns a SPARQL query as a string with the @var{columns} and @var{pattern}s.
 Returns a SPARQL query as a string with the @var{template} and @var{pattern}s.
 @end deffn
 
+@deffn {Scheme Procedure} ask @var{pattern} [#:graph #f @
+  #:suffix #f @ #:named #f]
+Returns a SPARQL query as a string with the given @var{pattern}.
+@end deffn
+
 @deffn {Scheme Procedure} insert-data @var{pattern} [#:graph #f @
   #:suffix #f]
 Returns a SPARQL query to insert the triplets described in @var{pattern}.
@@ -299,6 +304,28 @@ WHERE
   ?s <http://example.org/type> ?o .
 @}
 LIMIT 20"
+@end lisp
+
+@node Example of a @code{ASK} query
+@subsection Example of an @code{ASK} query
+
+The following query:
+@lisp
+(let ((ex (prefix "http://example.org/"))
+      (owl (prefix "http://www.w3.org/2002/07/owl#"))
+      (rdf (prefix "http://www.w3.org/1999/02/22-rdf-syntax-ns#")))
+  (ask `((s ,(rdf "type") ,(owl "Thing"))
+         (minus ((s ,(rdf "type") ,(ex "Thing")))))))
+@result{}
+"ASK
+@{
+  ?s <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Thing> .
+  MINUS
+  @{
+    ?s <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://example.org/Thing> .
+  @}
+@}
+"
 @end lisp
 
 @node Convenience functions
