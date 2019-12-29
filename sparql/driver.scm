@@ -22,7 +22,8 @@
   #:use-module (web uri)
   #:export (sparql-query
             sparql-query-4store
-            sparql-query-virtuoso))
+            sparql-query-virtuoso
+            sparql-available-backends))
 
 ;;;
 ;;; UTILITY FUNCTIONS
@@ -33,6 +34,13 @@
   (list->string
    (map (lambda _ (integer->char (+ (random 255) 0)))
         (iota length))))
+
+;;;
+;;; SPARQL-AVAILABLE-BACKENDS
+;;; ---------------------------------------------------------------------------
+
+(define (sparql-available-backends)
+  '(virtuoso blazegraph 4store))
 
 ;;;
 ;;; SPARQL-QUERY using a POST request.
