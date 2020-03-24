@@ -72,8 +72,10 @@
 
 ;; Some math basics.
 
-(define f-add +)
-(define f-ash ash)
+;; We use the (@ (guile) ...) construct to work around miscompilation on
+;; Guile 3.0.0 at -O2: <https://bugs.gnu.org/39251>.
+(define f-add (@ (guile) +))
+(define f-ash (@ (guile) ash))
 
 (define (+ . args)
   (modulo (apply f-add args) #x100000000))
