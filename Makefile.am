@@ -1,4 +1,5 @@
 # Copyright © 2017, 2018 Roel Janssen <roel@gnu.org>
+# Copyright © 2020 Giacomo Leidi <goodoldpaul@autistici.org>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -12,21 +13,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
-
-GOBJECTS = $(SOURCES:%.scm=%.go)
-
-nobase_mod_DATA = $(SOURCES) $(NOCOMP_SOURCES)
-nobase_go_DATA = $(GOBJECTS)
-
-guile_install_go_files = install-nobase_goDATA
-$(guile_install_go_files): install-nobase_modDATA
-
-CLEANFILES = $(GOBJECTS)
-EXTRA_DIST = $(SOURCES) $(NOCOMP_SOURCES)
-GUILE_WARNINGS = -Wunbound-variable -Warity-mismatch -Wformat
-SUFFIXES = .scm .go
-.scm.go:
-	$(AM_V_GEN)$(top_builddir)/env $(GUILE_TOOLS) compile $(GUILE_WARNINGS) -o "$@" "$<"
+include build-aux/guile.am
 
 moddir=$(prefix)/share/guile/site/@GUILE_EFFECTIVE_VERSION@
 godir=$(libdir)/guile/@GUILE_EFFECTIVE_VERSION@/site-ccache
