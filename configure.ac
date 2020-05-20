@@ -19,7 +19,7 @@ AC_CONFIG_AUX_DIR([build-aux])
 AM_INIT_AUTOMAKE([color-tests -Wall -Werror -Wno-portability foreign])
 AM_SILENT_RULES([yes])
 
-GUILE_PKG([2.2 2.0])
+GUILE_PKG([3.0 2.2 2.0])
 GUILE_PROGS
 
 if test "x$GUILD" = "x"; then
