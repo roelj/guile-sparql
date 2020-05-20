@@ -20,5 +20,13 @@ godir=$(libdir)/guile/@GUILE_EFFECTIVE_VERSION@/site-ccache
 
 SOURCES = sparql/driver.scm sparql/lang.scm sparql/md5.scm sparql/util.scm
 
+TESTS = tests/test-lang.scm
+
+TEST_EXTENSIONS = .scm
+SCM_LOG_COMPILER = $(top_builddir)/env $(GUILE)
+AM_SCM_LOG_FLAGS = --no-auto-compile -L "$(top_builddir)" -s
+
+CLEANFILES += $(TESTS:%.scm=%.log)
+
 info_TEXINFOS = doc/guile-sparql.texi
-EXTRA_DIST += env.in doc/fdl-1.3.texi doc/version.texi
+EXTRA_DIST += env.in doc/fdl-1.3.texi doc/version.texi $(TESTS) tests/runner.scm
