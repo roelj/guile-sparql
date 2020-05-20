@@ -96,6 +96,9 @@
 
 (define modify-data (@@ (sparql lang) modify-data))
 
+(test-equal "DELETE DATA {\n  GRAPH <> {\n  }\n}\n"
+  (modify-data '() 'DELETE #:graph ""))
+
 (test-equal "INSERT DATA {\n  GRAPH <http://www.example.org#graph> {\n    ?s rdf:type ?o .\n  }\n}\n"
   (modify-data '((s "rdf:type" o)) 'INSERT
                #:graph "http://www.example.org#graph"))
