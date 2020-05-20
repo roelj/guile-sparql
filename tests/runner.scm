@@ -1,5 +1,6 @@
 ;;; Copyright © 2018 Aleix Conchillo Flaque <aconchillo@gmail.com>
 ;;; Copyright © 2020 Giacomo Leidi <goodoldpaul@autistici.org>
+;;; Copyright © 2020 Roel Janssen <roel@gnu.org>
 ;;;
 ;;; This program is free software; you can redistribute it and/or modify it
 ;;; under the terms of the GNU General Public License as published by
@@ -18,7 +19,8 @@
 
 (define-module (tests runner)
   #:use-module (srfi srfi-64)
-  #:export (sparql:test-runner))
+  #:export (sparql:test-runner
+            with-test-group))
 
 (define (sparql:test-runner)
   (let ((runner (test-runner-null))
@@ -46,3 +48,6 @@
                 (test-result-ref runner 'source-file) num-passed num-failed)
         (zero? num-failed)))
     runner))
+
+(define-syntax-rule (with-test-group name . expr)
+    (begin (test-begin name) expr (test-end name)))
