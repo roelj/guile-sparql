@@ -29,4 +29,4 @@ AM_SCM_LOG_FLAGS = --no-auto-compile -L "$(top_builddir)" -s
 CLEANFILES += $(TESTS:%.scm=%.log)
 
 info_TEXINFOS = doc/guile-sparql.texi
-EXTRA_DIST += env.in doc/fdl-1.3.texi doc/version.texi $(TESTS) tests/runner.scm
+EXTRA_DIST += env.in doc/fdl-1.3.texi doc/version.texi $(TESTS) tests/runner.scm guix.scm
