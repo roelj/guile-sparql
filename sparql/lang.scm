@@ -66,18 +66,19 @@
         ('where       'WHERE)
         (_           (variabilize keyword)))))
 
-(define (triples->pattern pattern)
+(define* (triples->pattern pattern #:optional (indentation ""))
 
   ;; Translate the triples into SPARQL-like patterns.
-  (format #f "~%{~%~{~a~}}~%"
+  (format #f "~%~a{~%~a~{~a~}~a}~%" indentation indentation
           (map
            (lambda (triple)
              (let ((first (car triple)))
                (match first
-                 ('minus (string-append "MINUS " (triples->pattern (cadr triple))))
-                 ('optional (string-append "OPTIONAL " (triples->pattern (cadr triple))))
+                 ('minus (string-append "  MINUS " (triples->pattern (cadr triple) "  ")))
+                 ('optional (string-append "  OPTIONAL " (triples->pattern (cadr triple) "  ")))
                  (_ (format #f "  ~{~a ~}.~%" (map variabilize triple))))))
-           pattern)))
+           pattern)
+          indentation))
 
 ;;
 ;; PREFIX
