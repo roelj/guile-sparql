@@ -64,7 +64,9 @@
   (when skip-first-line? (csv-read-entry port))
   (let* [(entry (csv-read-entry port))]
     (if (null? entry)
-        (reverse output)
+        (begin
+          (close port)
+          (reverse output))
         (query-results-to-list port #f (cons entry output)))))
 
 (define-syntax-rule
@@ -83,7 +85,9 @@
                                       (output '()))
   (let [(entry (csv-read-entry port))]
     (if (null? entry)
-        (reverse output)
+        (begin
+          (close port)
+          (reverse output))
         (if (null? header)
             (query-results-to-alist port entry output)
             (query-results-to-alist port header
