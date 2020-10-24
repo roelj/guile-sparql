@@ -12,7 +12,7 @@
 
 @copying
 Copyright @copyright{} 2018 Roel Janssen@*
-Copyright @copyright{} 2019 Giacomo Leidi@*
+Copyright @copyright{} 2019, 2020 Giacomo Leidi@*
 
 Permission is granted to copy, distribute and/or modify this document
 under the terms of the GNU Free Documentation License, Version 1.3 or
@@ -211,6 +211,11 @@ Returns a SPARQL query as a string with the @var{columns} and @var{pattern}s.
 Returns a SPARQL query as a string with the @var{template} and @var{pattern}s.
 @end deffn
 
+@deffn {Scheme Procedure} describe @var{columns} [#:pattern #f @ #:graph #f @
+  #:suffix #f @ #:named #f]
+Returns a SPARQL query as a string with the @var{columns} and @var{pattern}s.
+@end deffn
+
 @deffn {Scheme Procedure} ask @var{pattern} [#:graph #f @
   #:suffix #f @ #:named #f]
 Returns a SPARQL query as a string with the given @var{pattern}.
@@ -302,6 +307,26 @@ The following query:
 WHERE
 @{
   ?s <http://example.org/type> ?o .
+@}
+LIMIT 20"
+@end lisp
+
+@node Example of a @code{DESCRIBE} query
+
+@subsection Example of a @code{DESCRIBE} query
+
+The following query:
+@lisp
+(let ((ex (prefix "http://example.org/"))
+      (rdf (prefix "http://www.w3.org/1999/02/22-rdf-syntax-ns#")))
+  (describe `(s o ,(ex "Thing"))
+             `((s ,(ex "type") o))
+             `((limit "20"))))
+@result{}
+"DESCRIBE ?s ?o <http://example.org/Thing>
+WHERE
+@{
+   ?s <http://example.org/type> ?o .
 @}
 LIMIT 20"
 @end lisp
