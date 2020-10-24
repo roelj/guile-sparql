@@ -36,13 +36,13 @@
       '((s "rdf:type" o))))
 
    (test-equal
-       "\n{\nOPTIONAL \n{\n  ?s rdf:type ?o .\n}\n}\n"
+       "\n{\n  OPTIONAL \n  {\n    ?s rdf:type ?o .\n  }\n}\n"
      (triples->pattern
       '((optional
          ((s "rdf:type" o))))))
 
    (test-equal
-       "\n{\nMINUS \n{\n  ?s rdf:type ?o .\n  ?o rdf:type ?s .\n}\n}\n"
+       "\n{\n  MINUS \n  {\n    ?s rdf:type ?o .\n  ?o rdf:type ?s .\n  }\n}\n"
      (triples->pattern
       '((minus
          ((s "rdf:type" o)
