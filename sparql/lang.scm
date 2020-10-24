@@ -21,7 +21,14 @@
   #:use-module (ice-9 format)
   #:use-module (srfi srfi-1)
   #:use-module (srfi srfi-26)
-  #:export (prefix select construct ask insert-data delete-data create))
+  #:export (prefix
+            select
+            construct
+            describe
+            ask
+            insert-data
+            delete-data
+            create))
 
 ;;
 ;; UTILITIES
@@ -155,6 +162,27 @@
        "")
 
    (where pattern suffix #:graph graph #:named named)))
+
+;;
+;; DESCRIBE
+;; ----------------------------------------------------------------------------
+;;
+;; Below is the implementation of SPARQL's DESCRIBE syntax.
+;;
+
+(define* (describe columns #:optional (pattern #f) (suffix #f) (graph #f) (named #f))
+
+  (string-append
+   "DESCRIBE "
+
+   (format #f "~{~a ~}~%"
+           ;; Translate the columns into SPARQL-like selectors.
+           (map variabilize
+                columns))
+
+   (if pattern
+       (where pattern suffix #:graph graph #:named named)
+       "")))
 
 ;;
 ;; ASK

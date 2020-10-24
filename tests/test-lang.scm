@@ -91,6 +91,20 @@
    (test-equal "CONSTRUCT \n{\n  ?s rdf:type ?o .\n}\nWHERE \n{\n}\n"
      (construct '((s "rdf:type" o)) '()))))
 
+;; Describe
+
+(with-test-group "describe-tests"
+  (lambda _
+    (test-equal "DESCRIBE <http://example.org#Alice> \n"
+      (describe `("<http://example.org#Alice>")))
+
+    (test-equal "DESCRIBE <http://example.org#Alice> <http://example.org#Bob> \n"
+       (let ((ex (prefix "http://example.org#")))
+         (describe `(,(ex "Alice") ,(ex "Bob")))))
+
+    (test-equal "DESCRIBE ?s ?o \nWHERE \n{\n  ?s rdf:type ?o .\n}\n"
+      (describe '(s o) '((s "rdf:type" o))))))
+
 ;; Ask
 
 (with-test-group "ask-tests"
