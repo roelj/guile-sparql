@@ -40,7 +40,7 @@
 (define %source-dir (getcwd))
 
 (define-public guile-sparql.git
-  (let ((version "0.0.7")
+  (let ((version "0.0.8")
         (revision "0")
         (commit (symbol->string
                  (read (open-pipe "git show HEAD | head -1 | cut -d ' ' -f 2" OPEN_READ)))))
@@ -51,16 +51,11 @@
       (source (local-file %source-dir
                           #:recursive? #t
                           #:select? (git-predicate %source-dir)))
-      (arguments (substitute-keyword-arguments (package-arguments guile-sparql)
-                   ((#:tests? _) #t)))
       (native-inputs
        `(("autoconf" ,autoconf)
          ("automake" ,automake)
          ("texinfo" ,texinfo)
-         ,@(package-native-inputs guile-sparql)))
-      (inputs
-       `(("guile" ,guile-3.0)
-         ,@(package-inputs guile-sparql))))))
+         ,@(package-native-inputs guile-sparql))))))
 
 guile-sparql.git
 
